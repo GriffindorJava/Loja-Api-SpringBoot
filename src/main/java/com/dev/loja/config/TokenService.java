@@ -4,6 +4,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.dev.loja.exception.CustomJwtVerificationException;
 import com.dev.loja.model.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -28,7 +29,7 @@ public class TokenService {
                     .sign(algorithm);
             return token;
         }catch (JWTCreationException e){
-            throw new RuntimeException("Error while generating jwt token", e);
+            throw new CustomJwtVerificationException("Erro ao gerar o token. "+e.getMessage());
         }
     }
 
@@ -45,9 +46,9 @@ public class TokenService {
                     .build()
                     .verify(token)
                     .getSubject();
-        } catch (JWTVerificationException e){
-            throw new JWTVerificationException("Error while verifying jwt token", e);
-
+        } catch (JWTVerificationException e){ //JWTVerificationException
+            throw new CustomJwtVerificationException("Token JWT inválido. "+e.getMessage());
+//            throw new JWTVerificationException("Token JWT inválido. ",e.getCause());
         }
     }
 }

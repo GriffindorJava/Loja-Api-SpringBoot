@@ -42,6 +42,13 @@ public class CustomExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
+    @ExceptionHandler(CustomJwtVerificationException.class)
+    public ResponseEntity<?> jwtFail(CustomJwtVerificationException e, HttpServletRequest request){
+        DefaultError error = this.exceptionBodyBuider(e, request);
+        error.setStatus(HttpStatus.FORBIDDEN.value());
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
+    }
     private DefaultError exceptionBodyBuider(RuntimeException e, HttpServletRequest request){
         DefaultError error = new DefaultError();
         error.setTimestamp(Instant.now());

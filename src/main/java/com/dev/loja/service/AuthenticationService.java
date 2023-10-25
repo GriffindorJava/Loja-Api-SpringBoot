@@ -5,6 +5,7 @@ import com.dev.loja.dto.AuthenticationDTO;
 import com.dev.loja.dto.LoginResponseDTO;
 import com.dev.loja.dto.RegisterDTO;
 import com.dev.loja.enums.UserRole;
+import com.dev.loja.exception.CustomJwtVerificationException;
 import com.dev.loja.exception.DuplicatedEntityException;
 import com.dev.loja.model.User;
 import com.dev.loja.repository.UserRepository;
