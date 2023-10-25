@@ -1,0 +1,139 @@
+package com.dev.loja.service;
+
+import com.dev.loja.beans.Util;
+import com.dev.loja.dto.CarrinhoDto;
+import com.dev.loja.dto.CarrinhoItem;
+import com.dev.loja.dto.PedidoDtoSaida;
+import com.dev.loja.enums.PedidoStatus;
+import com.dev.loja.enums.ProdutoStatus;
+import com.dev.loja.exception.BadRequestException;
+import com.dev.loja.exception.EntityNotFoundException;
+import com.dev.loja.model.*;
+import com.dev.loja.repository.*;
+import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.*;
+
+@Service
+@AllArgsConstructor
+public class VendaService {
+    private VendaRepository vendaRepository;
+    private UserRepository userRepository;
+    private ItemPedidoRepository itemPedidoRepository;
+    private ProdutoRepository produtoRepository;
+    private LancamentoRepository lancamentoRepository;
+
+
+    public ResponseEntity<?> fecharPedido(@Valid CarrinhoDto carrinho, UserDetails userDetails) {
+        if(carrinho.itens().isEmpty())
+            throw new BadRequestException("Nenhum item foi adicionado ao carrinho");
+
+        var busca = userRepository.findUserByLogin(userDetails.getUsername());
+
+        if(busca.isEmpty())
+            throw new EntityNotFoundException("Cliente não encontrado");
+
+        if(busca.get().getEnderecos().isEmpty())
+            throw new BadRequestException("O cliente não tem nenhum endereço cadastrado");
+
+        Pedido pedido = new Pedido();
+        pedido.setUser(busca.get());
+        pedido.setFormaPagamento(carrinho.formaPagamento());
+        pedido.setData(LocalDateTime.now());
+        pedido.setFrete(Util.calculaFrete("17548700", "87451100"));//implementar
+
+        vendaRepository.save(pedido);
+        return this.adicionarItens(pedido, carrinho.itens());
+    }
+
+    private ResponseEntity<?> adicionarItens(Pedido pedido, List<CarrinhoItem> itens) {
+        BigDecimal totalPedido = BigDecimal.ZERO;
+        var itensDuplicadosRemovidos = this.somaRepetidos(itens);
+        List<ItemPedido> itensPedido = new ArrayList<>();
+
+        for(CarrinhoItem carrinhoItem : itensDuplicadosRemovidos){
+            if(lancamentoRepository.consultarEstoque(carrinhoItem.produtoId) < carrinhoItem.quantidade){
+                vendaRepository.delete(pedido);
+                throw new BadRequestException("Estoque insuficiente para o produto de id "+
+                        carrinhoItem.produtoId);
+            }
+            ItemPedido itemPedido = new ItemPedido();
+            itemPedido.setPedido(pedido);
+            itemPedido.setProduto(this.getProduto(carrinhoItem.produtoId));
+            itemPedido.setQuantidade(carrinhoItem.quantidade);
+            itemPedido.setSubtotal(this.getPrecoProduto(carrinhoItem.produtoId)
+                            .multiply(new BigDecimal(itemPedido.getQuantidade())));
+            totalPedido = totalPedido.add(itemPedido.getSubtotal());//Acumula o subtotal
+            itensPedido.add(itemPedido);
+            this.atualizarEstoque(carrinhoItem);
+        }
+        pedido.setItens(itemPedidoRepository.saveAll(itensPedido));
+        pedido.setTotal(totalPedido);
+        BigDecimal descontos = this.calculaDesconto(pedido);
+        pedido.setDescontos(descontos);
+        totalPedido = totalPedido.add(pedido.getFrete()).subtract(descontos);
+        pedido.setTotal(totalPedido);
+        pedido.setPedidoStatus(PedidoStatus.FECHADO);
+        var pedidoSalvo = vendaRepository.save(pedido);
+        return new ResponseEntity<>(new PedidoDtoSaida(pedidoSalvo), HttpStatus.CREATED);
+    }
+
+    private Set<CarrinhoItem> somaRepetidos(List<CarrinhoItem> itens) {
+        CarrinhoItem itemAtual;
+        Set<CarrinhoItem> novaLista= new HashSet<>();
+
+        while (!itens.isEmpty()){
+            itemAtual = itens.get(0);
+            itens.remove(0);
+            for(CarrinhoItem item : itens){
+                if(Objects.equals(itemAtual.produtoId, item.produtoId)){
+                    itemAtual.quantidade += item.quantidade;
+                }
+            }
+            novaLista.add(itemAtual);
+        }
+        return novaLista;
+    }
+
+    private BigDecimal calculaDesconto(Pedido pedido) {
+        switch (pedido.getFormaPagamento()){
+            case DEBITO -> {
+                return new BigDecimal("0.05")
+                        .multiply(pedido.getTotal())
+                        .setScale(2, BigDecimal.ROUND_HALF_EVEN);}
+            case PIX -> {
+                return new BigDecimal("0.10")
+                        .multiply(pedido.getTotal())
+                        .setScale(2, BigDecimal.ROUND_HALF_EVEN);}
+            default -> {return BigDecimal.ZERO;}
+        }
+    }
+
+    private void atualizarEstoque(CarrinhoItem item) {
+        for (int i=0; i<item.quantidade; i++){
+            Lancamento primeiroProduto = lancamentoRepository.retornarPrimeirolancamento(item.produtoId, ProdutoStatus.DISPONIVEL);
+            primeiroProduto.setProdutoStatus(ProdutoStatus.RESERVADO);
+            primeiroProduto.setDataSaida(LocalDateTime.now());
+            lancamentoRepository.save(primeiroProduto);
+        }
+        Produto produto = this.getProduto(item.produtoId);
+        produto.setEstoqueAtual(produto.getEstoqueAtual() - item.quantidade);
+        produtoRepository.save(produto);
+    }
+
+    private BigDecimal getPrecoProduto(Long id){
+        var busca = produtoRepository.findById(id);
+        return busca.get().getPrecoVenda();
+    }
+
+    private Produto getProduto(Long id){
+        return produtoRepository.findById(id).get();
+    }
+}

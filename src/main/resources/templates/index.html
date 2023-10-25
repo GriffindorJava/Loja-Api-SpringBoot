@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Teste api</title>
+</head>
+<body>
+<h1>Testando api</h1>
+
+<script type="text/javascript">
+    fetch('http://localhost:8080/').then(resposta=>{
+        return resposta.json()}).then(corpo=>{
+            console.log(corpo)
+        })
+</script>
+
+</body>
+</html>
