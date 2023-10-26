@@ -20,12 +20,15 @@ public class VitrineController {
     }
     @GetMapping("home")
     public ResponseEntity<?> home(){
-        return produtoService.listarTudo();
+        return produtoService.listarTudoVitrine();
     }
-
+    @GetMapping("{id}")
+    public ResponseEntity<?> buscarPorId(@PathVariable Long id){
+        return produtoService.buscarPorIdHome(id);
+    }
     @GetMapping("home/{categoria}")
     public ResponseEntity<?> produtosPorCategoria(@PathVariable String categoria){
         return produtoService.produtosPorCategoriaNome(categoria);
-
     }
+
 }

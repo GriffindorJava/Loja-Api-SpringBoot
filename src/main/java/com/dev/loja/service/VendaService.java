@@ -68,10 +68,12 @@ public class VendaService {
                         carrinhoItem.produtoId);
             }
             ItemPedido itemPedido = new ItemPedido();
+            Produto produto = this.getProduto(carrinhoItem.produtoId);
+
             itemPedido.setPedido(pedido);
-            itemPedido.setProduto(this.getProduto(carrinhoItem.produtoId));
+            itemPedido.setProduto(produto);
             itemPedido.setQuantidade(carrinhoItem.quantidade);
-            itemPedido.setSubtotal(this.getPrecoProduto(carrinhoItem.produtoId)
+            itemPedido.setSubtotal(produto.getPrecoVenda()
                             .multiply(new BigDecimal(itemPedido.getQuantidade())));
             totalPedido = totalPedido.add(itemPedido.getSubtotal());//Acumula o subtotal
             itensPedido.add(itemPedido);
@@ -131,11 +133,6 @@ public class VendaService {
         Produto produto = this.getProduto(item.produtoId);
         produto.setEstoqueAtual(produto.getEstoqueAtual() - item.quantidade);
         produtoRepository.save(produto);
-    }
-
-    private BigDecimal getPrecoProduto(Long id){
-        var busca = produtoRepository.findById(id);
-        return busca.get().getPrecoVenda();
     }
 
     private Produto getProduto(Long id){

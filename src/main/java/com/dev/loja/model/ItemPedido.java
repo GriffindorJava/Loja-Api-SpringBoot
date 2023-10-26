@@ -17,6 +17,7 @@ public class ItemPedido {
     private Pedido pedido;
     @ManyToOne
     private Produto produto;
+    private Long codigoBarras;
     private int quantidade;
     private BigDecimal subtotal;
 

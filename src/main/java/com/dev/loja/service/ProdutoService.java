@@ -3,6 +3,7 @@ package com.dev.loja.service;
 import com.dev.loja.dto.ImagemDtoSaida;
 import com.dev.loja.dto.ProdutoDtoEntrada;
 import com.dev.loja.dto.ProdutoDtoSaida;
+import com.dev.loja.dto.ProdutoDtoVitrine;
 import com.dev.loja.exception.EntityNotFoundException;
 import com.dev.loja.exception.FileOperationException;
 import com.dev.loja.model.Imagem;
@@ -43,7 +44,10 @@ public class ProdutoService {
         return new ResponseEntity<>(produtoRepository.findAll()
                 .stream().map(ProdutoDtoSaida::new).toList(), HttpStatus.OK);
     }
-
+    public ResponseEntity<?> listarTudoVitrine() {
+        return new ResponseEntity<>(produtoRepository.findAll()
+                .stream().map(ProdutoDtoVitrine::new).toList(), HttpStatus.OK);
+    }
     public ResponseEntity<?> produtosPorCategoriaNome(String categoria) {
         return new ResponseEntity<>(produtoRepository.getProdutoByCategoriaNome(categoria)
                 .stream().map(ProdutoDtoSaida::new).toList(), HttpStatus.OK);
@@ -56,12 +60,14 @@ public class ProdutoService {
 
         return new ResponseEntity<>(produtoRepository.save(new Produto(produtoDto)), HttpStatus.CREATED);
     }
-
     public ResponseEntity<?> buscarPorId(Long id) {
         var produto = buscarProdutoPorId(id);
         return new ResponseEntity<>(new ProdutoDtoSaida(produto), HttpStatus.OK);
     }
-
+    public ResponseEntity<?> buscarPorIdHome(Long id) { //home
+        var produto = buscarProdutoPorId(id);
+        return new ResponseEntity<>(new ProdutoDtoVitrine(produto), HttpStatus.OK);
+    }
     public ResponseEntity<?> adicionarImagens(Long id, MultipartFile[] files) {
         var produto = buscarProdutoPorId(id);
 
@@ -89,7 +95,6 @@ public class ProdutoService {
 
         return new ResponseEntity<>(new ProdutoDtoSaida(produto), HttpStatus.OK);
     }
-
     public ResponseEntity<?> removerImagens(Long produtoId, List<ImagemDtoSaida> imagens) {
         Imagem imagem;
         File arquivo;
@@ -103,19 +108,16 @@ public class ProdutoService {
         }
         return buscarPorId(produtoId);
     }
-
     public ResponseEntity<?> buscarPorNome(String nome) {
         return new ResponseEntity<>(produtoRepository.findByNomeContainingIgnoreCase(nome)
                 .stream().map(ProdutoDtoSaida::new).toList(), HttpStatus.OK);
     }
-
     public ResponseEntity<?> editar(ProdutoDtoEntrada produto, Long id) throws InvocationTargetException, IllegalAccessException {
         var prod = buscarProdutoPorId(id);
         beanUtilsBean.copyProperties(prod, new Produto(produto));
 
         return new ResponseEntity<>(new ProdutoDtoSaida(produtoRepository.save(prod)), HttpStatus.OK);
     }
-
     private Produto buscarProdutoPorId(Long id) {
         var busca = produtoRepository.findById(id);
         if (busca.isEmpty())

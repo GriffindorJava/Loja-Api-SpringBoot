@@ -1,6 +1,7 @@
 package com.dev.loja.service;
 
 import com.dev.loja.dto.CategoriaDto;
+import com.dev.loja.dto.CategoriaDtoSaida;
 import com.dev.loja.exception.DuplicatedEntityException;
 import com.dev.loja.exception.EntityNotFoundException;
 import com.dev.loja.model.Categoria;
@@ -16,15 +17,16 @@ public class CategoriaService {
     private CategoriaRepository categoriaRepository;
 
     public ResponseEntity<?> listarTudo() {
-        return new ResponseEntity<>(categoriaRepository.findAll(), HttpStatus.OK);
+        return new ResponseEntity<>(categoriaRepository.findAll().stream().map(CategoriaDtoSaida::new), HttpStatus.OK);
     }
 
     public ResponseEntity<?> novo(CategoriaDto categoriaDto) {
             var busca = categoriaRepository.findByNome(categoriaDto.nome().trim());
             if(busca.isPresent())
                 throw new DuplicatedEntityException("Erro: Já existe a categoria '"+categoriaDto.nome()+"'");
+            var categ = categoriaRepository.save(new Categoria(categoriaDto));
 
-        return new ResponseEntity<>(categoriaRepository.save(new Categoria(categoriaDto)), HttpStatus.CREATED);
+        return new ResponseEntity<>(new CategoriaDtoSaida(categ), HttpStatus.CREATED);
     }
 
     public ResponseEntity<?> buscarPorId(Long id) {
@@ -32,6 +34,6 @@ public class CategoriaService {
         if(busca.isEmpty())
             throw new EntityNotFoundException("Recurso não encontrado");
 
-        return new ResponseEntity<>(busca.get(), HttpStatus.OK);
+        return new ResponseEntity<>(new CategoriaDtoSaida(busca.get()), HttpStatus.OK);
     }
 }
