@@ -1,7 +1,7 @@
 package com.dev.loja.dto;
 
-import com.dev.loja.model.Categoria;
+import jakarta.validation.constraints.NotBlank;
 
-public record CategoriaDto(String nome) {
+public record CategoriaDto(@NotBlank String nome) {
 
 }

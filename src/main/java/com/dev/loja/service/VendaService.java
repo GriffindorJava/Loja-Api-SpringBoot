@@ -56,6 +56,9 @@ public class VendaService {
     private ResponseEntity<?> adicionarItens(Pedido pedido, List<CarrinhoItem> itens) {
         BigDecimal totalPedido = BigDecimal.ZERO;
         var itensDuplicadosRemovidos = this.somaRepetidos(itens);
+        if(itensDuplicadosRemovidos.isEmpty())
+            throw new BadRequestException("A lista de itens está vazia.");
+
         List<ItemPedido> itensPedido = new ArrayList<>();
 
         for(CarrinhoItem carrinhoItem : itensDuplicadosRemovidos){
@@ -92,8 +95,10 @@ public class VendaService {
         while (!itens.isEmpty()){
             itemAtual = itens.get(0);
             itens.remove(0);
+            if(itemAtual.quantidade < 1) continue;
+
             for(CarrinhoItem item : itens){
-                if(Objects.equals(itemAtual.produtoId, item.produtoId)){
+                if(Objects.equals(itemAtual.produtoId, item.produtoId) && item.quantidade > 0){
                     itemAtual.quantidade += item.quantidade;
                 }
             }

@@ -1,9 +1,9 @@
 package com.dev.loja.dto;
 
 import com.dev.loja.enums.FormaPagamento;
-import com.dev.loja.model.User;
+import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 
-public record CarrinhoDto(FormaPagamento formaPagamento, List<CarrinhoItem> itens) {
+public record CarrinhoDto(@NotNull FormaPagamento formaPagamento, List<CarrinhoItem> itens) {
 }

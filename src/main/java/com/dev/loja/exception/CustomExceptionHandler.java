@@ -3,6 +3,7 @@ package com.dev.loja.exception;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -49,6 +50,21 @@ public class CustomExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
     }
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<?> validationFields(MethodArgumentNotValidException e, HttpServletRequest request){
+        ValidationError error = new ValidationError();
+        error.setTimestamp(Instant.now());
+        error.setStatus(HttpStatus.BAD_REQUEST.value());
+        error.setMessage("Erro(s) de validação");
+        error.setPath(request.getRequestURI());
+
+        e.getBindingResult().getFieldErrors().forEach(fieldError -> {
+            error.addErrors(fieldError.getField(), fieldError.getDefaultMessage());
+        });
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
     private DefaultError exceptionBodyBuider(RuntimeException e, HttpServletRequest request){
         DefaultError error = new DefaultError();
         error.setTimestamp(Instant.now());

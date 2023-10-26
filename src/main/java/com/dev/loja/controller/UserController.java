@@ -25,7 +25,7 @@ public class UserController {
     }
 
     @PostMapping("roles")
-    public ResponseEntity<?> alterarUser(@RequestBody UserDto userDto){
+    public ResponseEntity<?> alterarUser(@RequestBody @Valid UserDto userDto){
         return userService.alterarUser(userDto);
     }
 }

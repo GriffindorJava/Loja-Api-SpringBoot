@@ -12,15 +12,21 @@ import java.math.BigDecimal;
 public class ProdutoDtoEntrada {
     @NotNull
     public Categoria categoria;
+
     @NotBlank
     public String nome;
+
     @DecimalMin(value = "0.00")
     public BigDecimal precoCompra;
+
     @DecimalMin(value = "0.00")
     public BigDecimal precoVenda;
+
     @Min(0)
     public int estoqueMinimo;
+
     @Lob
     public String descricao;
+
     public boolean ativo = true;
 }

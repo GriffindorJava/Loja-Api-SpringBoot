@@ -1,6 +1,7 @@
 package com.dev.loja.service;
 
 import com.dev.loja.dto.CategoriaDto;
+import com.dev.loja.exception.DuplicatedEntityException;
 import com.dev.loja.exception.EntityNotFoundException;
 import com.dev.loja.model.Categoria;
 import com.dev.loja.repository.CategoriaRepository;
@@ -21,7 +22,7 @@ public class CategoriaService {
     public ResponseEntity<?> novo(CategoriaDto categoriaDto) {
             var busca = categoriaRepository.findByNome(categoriaDto.nome().trim());
             if(busca.isPresent())
-                return new ResponseEntity<>("Erro: Já existe a categoria '"+categoriaDto.nome()+"'", HttpStatus.BAD_REQUEST);
+                throw new DuplicatedEntityException("Erro: Já existe a categoria '"+categoriaDto.nome()+"'");
 
         return new ResponseEntity<>(categoriaRepository.save(new Categoria(categoriaDto)), HttpStatus.CREATED);
     }
