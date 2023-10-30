@@ -24,6 +24,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -74,8 +75,12 @@ public class ProdutoService {
         return new ResponseEntity<>(new ProdutoDtoVitrine(produto), HttpStatus.OK);
     }
     public ResponseEntity<?> adicionarImagens(Long id, MultipartFile[] files) {
+        List<String> contentTypes = Arrays.asList("image/png", "image/jpeg", "image/gif");
+        for(MultipartFile file : files){
+            if(!contentTypes.contains(file.getContentType()))
+                throw new FileOperationException("Somente imagens PNG, JPG e GIF são permitidas.");
+        }
         var produto = buscarProdutoPorId(id);
-
         String filename;
         List<Imagem> imagens = produto.getImagens();
         Path fileNameAndPath;
