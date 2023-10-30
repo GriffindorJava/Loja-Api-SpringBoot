@@ -2,12 +2,10 @@ package com.dev.loja.controller;
 
 import com.dev.loja.dto.ImagemDtoSaida;
 import com.dev.loja.dto.ProdutoDtoEntrada;
-import com.dev.loja.model.Produto;
 import com.dev.loja.service.ProdutoService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 

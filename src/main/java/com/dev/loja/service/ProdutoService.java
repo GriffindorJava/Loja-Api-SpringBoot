@@ -13,13 +13,13 @@ import com.dev.loja.repository.ImagemRepository;
 import com.dev.loja.repository.ProdutoRepository;
 import lombok.AllArgsConstructor;
 import org.apache.commons.beanutils.BeanUtilsBean;
+import org.apache.commons.io.IOUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -33,7 +33,6 @@ public class ProdutoService {
     private ProdutoRepository produtoRepository;
     private CategoriaRepository categoriaRepository;
     private ImagemRepository imagemRepository;
-
     private BeanUtilsBean beanUtilsBean;
 
 //    private final String path = System.getProperty("user.dir") + "/upload/produtos/";
@@ -42,11 +41,17 @@ public class ProdutoService {
 
     public ResponseEntity<?> listarTudo() {
         return new ResponseEntity<>(produtoRepository.findAll()
-                .stream().map(ProdutoDtoSaida::new).toList(), HttpStatus.OK);
+                .stream().map(produto -> {
+                    produto.setImagens(this.carregarImagemPorProduto(produto));
+                    return new ProdutoDtoSaida(produto);
+                }).toList(), HttpStatus.OK);
     }
     public ResponseEntity<?> listarTudoVitrine() {
         return new ResponseEntity<>(produtoRepository.findAll()
-                .stream().map(ProdutoDtoVitrine::new).toList(), HttpStatus.OK);
+                .stream().map(produto -> {
+                    produto.setImagens(this.carregarImagemPorProduto(produto));
+                    return new ProdutoDtoVitrine(produto);
+                }).toList(), HttpStatus.OK);
     }
     public ResponseEntity<?> produtosPorCategoriaNome(String categoria) {
         return new ResponseEntity<>(produtoRepository.getProdutoByCategoriaNome(categoria)
@@ -80,7 +85,7 @@ public class ProdutoService {
 //            filename = file.getOriginalFilename();
             fileNameAndPath = Paths.get(this.path, filename);
             Imagem imagem = new Imagem();
-            imagem.setCaminho(fileNameAndPath.toString());
+            imagem.setCaminho(filename);
             imagem.setProduto(produto);
             imagens.add(imagem);
             try {
@@ -101,9 +106,11 @@ public class ProdutoService {
         for(ImagemDtoSaida imagemDto : imagens){
             imagem = imagemRepository.findByCaminho(imagemDto.caminho);
             if(imagem != null){
-                arquivo = new File(imagemDto.caminho);
-                if(arquivo.delete())
-                    imagemRepository.delete(imagem);
+                imagemRepository.delete(imagem);
+                arquivo = new File(path + imagemDto.caminho);
+                if(! arquivo.delete())
+                    throw new FileOperationException("Não foi possível encontrar a imagem. " +
+                            "Ela pode ter sido renomeada ou removida");
             }
         }
         return buscarPorId(produtoId);
@@ -124,6 +131,20 @@ public class ProdutoService {
             throw new EntityNotFoundException("Produto não encontrado");
 
         return busca.get();
+    }
+
+    private List<Imagem> carregarImagemPorProduto(Produto produto){
+        produto.getImagens().forEach(imagem -> {
+            try {
+                InputStream inputStream = new FileInputStream(this.path+imagem.getCaminho());
+                imagem.setArquivo(IOUtils.toByteArray(inputStream));
+            } catch (FileNotFoundException e) {
+                throw new FileOperationException("Erro ao buscar arquivo de imagem. "+e.getMessage());
+            } catch (IOException e) {
+                throw new FileOperationException("Erro ao converter arquivo. "+e.getMessage());
+            }
+        });
+        return produto.getImagens();
     }
 
 }

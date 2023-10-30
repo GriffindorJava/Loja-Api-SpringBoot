@@ -18,4 +18,8 @@ public class Imagem {
 
     @NotBlank
     private String caminho;
+
+    @Transient
+    private byte[] arquivo;
+
 }
