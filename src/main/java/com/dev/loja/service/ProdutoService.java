@@ -72,6 +72,7 @@ public class ProdutoService {
     }
     public ResponseEntity<?> buscarPorIdHome(Long id) { //home
         var produto = buscarProdutoPorId(id);
+        produto.setImagens(this.carregarImagemPorProduto(produto));
         return new ResponseEntity<>(new ProdutoDtoVitrine(produto), HttpStatus.OK);
     }
     public ResponseEntity<?> adicionarImagens(Long id, MultipartFile[] files) {
