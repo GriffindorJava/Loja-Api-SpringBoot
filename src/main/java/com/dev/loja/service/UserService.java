@@ -82,6 +82,7 @@ public class UserService {
     }
 
     public ResponseEntity<?> mostrarPerfil() {
-        return new ResponseEntity<>(SecurityContextHolder.getContext().getAuthentication().getName(), HttpStatus.OK);
+        var usuario = buscarUsuarioPorLogin(SecurityContextHolder.getContext().getAuthentication().getName());
+        return new ResponseEntity<>(new UserDtoSaida(usuario), HttpStatus.OK);
     }
 }
