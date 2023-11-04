@@ -4,6 +4,7 @@ import com.dev.loja.config.TokenService;
 import com.dev.loja.dto.AuthenticationDTO;
 import com.dev.loja.dto.LoginResponseDTO;
 import com.dev.loja.dto.RegisterDTO;
+import com.dev.loja.dto.UserDtoSaida;
 import com.dev.loja.enums.UserRole;
 import com.dev.loja.exception.CustomJwtVerificationException;
 import com.dev.loja.exception.DuplicatedEntityException;
@@ -28,8 +29,9 @@ public class AuthenticationService {
         var userNamePassword = new UsernamePasswordAuthenticationToken(data.login(), data.password());
         var auth = authenticationManager.authenticate(userNamePassword);
         var token = tokenService.generateToken((User) auth.getPrincipal());
-
-        return ResponseEntity.ok(new LoginResponseDTO(token));
+        var user = userRepository.findUserByLogin(data.login()).get();
+        var userDtoSaida = new UserDtoSaida(user);
+        return ResponseEntity.ok(new LoginResponseDTO(userDtoSaida, token));
     }
 
     public ResponseEntity register(RegisterDTO data) {

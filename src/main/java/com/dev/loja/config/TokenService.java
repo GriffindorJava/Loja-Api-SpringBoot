@@ -48,7 +48,6 @@ public class TokenService {
                     .getSubject();
         } catch (JWTVerificationException e){ //JWTVerificationException
             throw new CustomJwtVerificationException("Token JWT inválido. "+e.getMessage());
-//            throw new JWTVerificationException("Token JWT inválido. ",e.getCause());
         }
     }
 }

@@ -12,6 +12,7 @@ import lombok.AllArgsConstructor;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -78,5 +79,9 @@ public class UserService {
         if (busca.isEmpty())
             throw new EntityNotFoundException("Endereço não encontrado");
         return busca.get();
+    }
+
+    public ResponseEntity<?> mostrarPerfil() {
+        return new ResponseEntity<>(SecurityContextHolder.getContext().getAuthentication().getName(), HttpStatus.OK);
     }
 }

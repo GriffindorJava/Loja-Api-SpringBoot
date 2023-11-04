@@ -1,4 +1,4 @@
 package com.dev.loja.dto;
 
-public record LoginResponseDTO(String token) {
+public record LoginResponseDTO(UserDtoSaida user, String token) {
 }
