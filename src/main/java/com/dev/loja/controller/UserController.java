@@ -1,7 +1,6 @@
 package com.dev.loja.controller;
 
 import com.dev.loja.dto.UserDto;
-import com.dev.loja.model.Endereco;
 import com.dev.loja.service.UserService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -27,5 +26,9 @@ public class UserController {
     @PostMapping("roles")
     public ResponseEntity<?> alterarUser(@RequestBody @Valid UserDto userDto){
         return userService.alterarUser(userDto);
+    }
+    @PostMapping("busca")
+    public ResponseEntity<?> buscarPorLogin(@RequestParam String email){
+        return userService.buscarUsuarioPorEmail(email);
     }
 }

@@ -47,7 +47,7 @@ public class VendaService {
         pedido.setUser(busca.get());
         pedido.setFormaPagamento(carrinho.formaPagamento());
         pedido.setData(LocalDateTime.now());
-        pedido.setFrete(Util.calculaFrete("17548700", "87451100"));//implementar
+        pedido.setFrete(Util.calculaFrete("17548700", carrinho.cep()));//implementar
 
         vendaRepository.save(pedido);
         return this.adicionarItens(pedido, carrinho.itens());
@@ -138,4 +138,5 @@ public class VendaService {
     private Produto getProduto(Long id){
         return produtoRepository.findById(id).get();
     }
+
 }
