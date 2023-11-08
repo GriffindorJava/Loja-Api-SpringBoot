@@ -26,5 +26,7 @@ public class Pedido {
     private BigDecimal total;
     private PedidoStatus pedidoStatus;
     private LocalDateTime data;
+    @Transient
+    private String cep;
 
 }

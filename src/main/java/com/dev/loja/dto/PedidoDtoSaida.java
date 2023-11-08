@@ -13,10 +13,11 @@ public class PedidoDtoSaida {
     public String total;
     public String status;
     public UserDtoSaida cliente;
+    public String cep;
     public List<ItemPedidoDtoSaida> itens;
 
     public PedidoDtoSaida(Pedido pedido){
-        this.numero = pedido.getNumero().toString();
+        this.numero = (pedido.getNumero() != null)? pedido.getNumero().toString(): null;
         this.data = pedido.getData().toString();
         this.formaPagamento = pedido.getFormaPagamento().toString();
         this.frete = pedido.getFrete().toString();
@@ -24,6 +25,7 @@ public class PedidoDtoSaida {
         this.total = pedido.getTotal().toString();
         this.status = pedido.getPedidoStatus().toString();
         this.cliente = new UserDtoSaida(pedido.getUser());
+        this.cep = pedido.getCep();
         this.itens = pedido.getItens().stream().map(ItemPedidoDtoSaida::new).toList();
     }
 

@@ -14,6 +14,7 @@ public class Util {
      * @return BigDecimal
      */
     public static BigDecimal calculaFrete(String cepOrigem, String cepDestino){
+        if(cepDestino.isEmpty()) return BigDecimal.ZERO;
         return new BigDecimal("16.00"); //Valor fictício
     }
 }

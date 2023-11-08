@@ -17,15 +17,18 @@ public class UserDtoSaida extends RepresentationModel<UserDtoSaida> {
     public EnderecoDtoSaida endereco;
 
     public UserDtoSaida(User user){
-        this.nome = user.getNome();
-        this.sobrenome = user.getSobrenome();
-        this.email = user.getLogin();
-        var endereco = user.getEnderecos().stream().filter(Endereco::getPrincipal).findFirst();
-        this.endereco = endereco.isEmpty() ? null : new EnderecoDtoSaida(endereco.get());
-        this.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class)
-                .buscarPorId(user.getId())).withSelfRel());
-        this.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class)
-                .listarTudo()).withRel(IanaLinkRelations.COLLECTION));
+        if(user != null){
+            this.nome = user.getNome();
+            this.sobrenome = user.getSobrenome();
+            this.email = user.getLogin();
+            var endereco = user.getEnderecos().stream().filter(Endereco::getPrincipal).findFirst();
+            this.endereco = endereco.isEmpty() ? null : new EnderecoDtoSaida(endereco.get());
+            this.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class)
+                    .buscarPorId(user.getId())).withSelfRel());
+            this.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class)
+                    .listarTudo()).withRel(IanaLinkRelations.COLLECTION));
+        }
+
 
     }
 }
