@@ -9,9 +9,11 @@ import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 
 @NoArgsConstructor
 public class CategoriaDtoSaida extends RepresentationModel<CategoriaDtoSaida> {
+    public Long id;
     public String nome;
 
     public CategoriaDtoSaida(Categoria categoria){
+        this.id = categoria.getId();
         this.nome = categoria.getNome();
         this.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(CategoriaController.class)
                 .buscarPorId(categoria.getId())).withSelfRel());

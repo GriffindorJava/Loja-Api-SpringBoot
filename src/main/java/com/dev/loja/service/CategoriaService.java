@@ -30,10 +30,26 @@ public class CategoriaService {
     }
 
     public ResponseEntity<?> buscarPorId(Long id) {
+        var categoria = buscarCategoriaPorId(id);
+        return new ResponseEntity<>(new CategoriaDtoSaida(categoria), HttpStatus.OK);
+    }
+
+    public ResponseEntity<?> editar(Long id, CategoriaDto categoriaDto) {
+        var categoria = buscarCategoriaPorId(id);
+        categoria.setNome(categoriaDto.nome());
+        categoriaRepository.save(categoria);
+        return new ResponseEntity<>(new CategoriaDtoSaida(categoria), HttpStatus.OK);
+    }
+
+    private Categoria buscarCategoriaPorId(Long id){
         var busca = categoriaRepository.findById(id);
         if(busca.isEmpty())
             throw new EntityNotFoundException("Recurso não encontrado");
 
-        return new ResponseEntity<>(new CategoriaDtoSaida(busca.get()), HttpStatus.OK);
+        return busca.get();
+    }
+
+    public ResponseEntity<?> buscarCategoriaPorNome(String nome) {
+        return new ResponseEntity<>(categoriaRepository.findByNomeContaining(nome), HttpStatus.OK);
     }
 }

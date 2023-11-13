@@ -23,9 +23,16 @@ public class CategoriaController {
     public ResponseEntity<?> novo(@RequestBody @Valid CategoriaDto categoriaDto){
         return categoriaService.novo(categoriaDto);
     }
-
+    @PutMapping("{id}")
+    public ResponseEntity<?> editar(@PathVariable Long id, @RequestBody @Valid CategoriaDto categoriaDto){
+        return categoriaService.editar(id, categoriaDto);
+    }
     @GetMapping("{id}")
     public ResponseEntity<?> buscarPorId(@PathVariable Long id){
         return categoriaService.buscarPorId(id);
+    }
+    @PostMapping("busca")
+    public ResponseEntity<?> buscarPorNome(@RequestParam String nome){
+        return categoriaService.buscarCategoriaPorNome(nome);
     }
 }
