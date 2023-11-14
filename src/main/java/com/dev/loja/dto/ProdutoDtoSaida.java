@@ -11,7 +11,7 @@ import java.util.List;
 
 public class ProdutoDtoSaida extends RepresentationModel<ProdutoDtoSaida> {
     public String id;
-    public String categoria;
+    public CategoriaDtoSaida categoria;
     public String nome;
     public String precoCompra;
     public String precoVenda;
@@ -19,18 +19,18 @@ public class ProdutoDtoSaida extends RepresentationModel<ProdutoDtoSaida> {
     public String estoqueMinimo;
     @Lob
     public String descricao;
-    public String ativo;
+    public Boolean ativo;
     public List<ImagemDtoSaida> imagens;
     public ProdutoDtoSaida(Produto produto){
         this.id = String.valueOf(produto.getId());
-        this.categoria = produto.getCategoria().getNome();
+        this.categoria = new CategoriaDtoSaida(produto.getCategoria());
         this.nome = produto.getNome();
         this.precoCompra = produto.getPrecoCompra().toString();
         this.precoVenda = produto.getPrecoVenda().toString();
         this.estoqueAtual = String.valueOf(produto.getEstoqueAtual());
         this.estoqueMinimo = String.valueOf(produto.getEstoqueMinimo());
         this.descricao = produto.getDescricao();
-        this.ativo = produto.getAtivo() ? "Ativo" : "Inativo";
+        this.ativo = produto.getAtivo();
         this.imagens = produto.getImagens().stream().map(ImagemDtoSaida::new).toList();
         this.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(ProdutoController.class)
                         .buscarPorId(produto.getId())).withSelfRel());
