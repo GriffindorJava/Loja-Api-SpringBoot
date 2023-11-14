@@ -57,6 +57,7 @@ public class VendaService {
 
         pedido.setFormaPagamento(carrinho.formaPagamento());
         pedido.setData(LocalDateTime.now());
+
         pedido.setFrete(Util.calculaFrete("17548700", carrinho.cep()));//implementar
 
         if(userDetails != null) {
@@ -98,6 +99,7 @@ public class VendaService {
         else
             pedido.setItens(itensPedido);
 
+        pedido.setSubtotal(totalPedido);
         pedido.setTotal(totalPedido);
         BigDecimal descontos = this.calculaDesconto(pedido);
         pedido.setDescontos(descontos);

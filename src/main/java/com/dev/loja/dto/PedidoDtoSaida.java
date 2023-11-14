@@ -10,6 +10,7 @@ public class PedidoDtoSaida {
     public String formaPagamento;
     public String frete;
     public String descontos;
+    public String subtotal;
     public String total;
     public String status;
     public UserDtoSaida cliente;
@@ -22,6 +23,7 @@ public class PedidoDtoSaida {
         this.formaPagamento = pedido.getFormaPagamento().toString();
         this.frete = pedido.getFrete().toString();
         this.descontos = pedido.getDescontos().toString();
+        this.subtotal = pedido.getSubtotal().toString();
         this.total = pedido.getTotal().toString();
         this.status = pedido.getPedidoStatus().toString();
         this.cliente = new UserDtoSaida(pedido.getUser());

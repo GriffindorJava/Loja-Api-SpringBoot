@@ -23,6 +23,7 @@ public class Pedido {
     private FormaPagamento formaPagamento;
     private BigDecimal frete;
     private BigDecimal descontos;
+    private BigDecimal subtotal;
     private BigDecimal total;
     private PedidoStatus pedidoStatus;
     private LocalDateTime data;
